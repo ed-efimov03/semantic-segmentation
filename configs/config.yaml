@@ -1,0 +1,9 @@
+defaults:
+  - dataset: default
+  - train: default
+  - model: unet
+  - _self_
+
+device: "cuda:2"
+seed: 42
+num_classes: 2

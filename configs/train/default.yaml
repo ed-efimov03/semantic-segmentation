@@ -1,0 +1,4 @@
+epochs: 20
+batch_size: 8
+lr: 1e-4
+save_dir_model: models

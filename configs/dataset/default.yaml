@@ -1,0 +1,4 @@
+img_size: [256, 256]
+train_split: training/data/preprocessed/train_test_split.py
+data_dir: training/data/preprocessed/prep_data/data
+mask_dir: training/data/preprocessed/prep_data/markup

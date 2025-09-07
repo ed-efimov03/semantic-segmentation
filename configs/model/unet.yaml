@@ -1,0 +1,2 @@
+architecture: unet
+encoder: resnet34
