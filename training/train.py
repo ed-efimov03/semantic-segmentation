@@ -171,7 +171,6 @@ def main(cfg):
     }
 
     os.makedirs(cfg.train.save_dir_model, exist_ok=True)
-    timestamp = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
 
     for epoch in range(cfg.train.epochs):
         train_loss = train_one_epoch(model, train_loader, optimizer, loss_fn, device)
@@ -196,7 +195,7 @@ def main(cfg):
         for m in metrics.values():
             m.reset()
 
-    save_path = f"{cfg.train.save_dir_model}/{cfg.model.architecture}_{timestamp}.pth"
+    save_path = f"{cfg.train.save_dir_model}/{cfg.model.architecture}_custom.pth"
     torch.save(model.state_dict(), save_path)
     wandb.save(save_path) 
 

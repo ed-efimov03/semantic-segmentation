@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Data
+training
+
+.gitignore
+
+#Auto-generated with uv
+.python-version
+pyproject.toml
+README.md
+uv.lock

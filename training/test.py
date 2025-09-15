@@ -116,9 +116,9 @@ mask_paths  = [os.path.join(mask_dir, msk) for msk in masks]
 @hydra.main(config_path="../configs", config_name="config", version_base=None)
 def main(cfg):
     if cfg.model.architecture == "unet":
-        model_path = "models/unet_06-09-2025_11:13:54.pth"
+        model_path = "models/unet_custom.pth"
     elif cfg.model.architecture == "deeplabv3+":
-        model_path = "models/deeplabv3+_06-09-2025_11:18:54.pth"
+        model_path = "models/deeplabv3+_custom.pth"
 
     wandb.init(
         project="segmentation_project_test",
