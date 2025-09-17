@@ -1,3 +1,37 @@
+"""
+Whole-slide Image Segmentation and Contour Extraction
+
+This module provides functionality to process whole-slide images (WSIs) using a 
+PyTorch segmentation model. It extracts a thumbnail of the slide, performs model 
+inference, generates a segmentation mask, extracts contours, scales them to the 
+original slide dimensions, converts them to GeoJSON, and packages the results into a ZIP file.
+
+Dependencies:
+    - torch
+    - omegaconf
+    - PIL
+    - openslide
+    - io
+    - torchvision.transforms
+    - tempfile
+    - cv2
+    - fastapi.responses
+    - json
+    - zipfile
+
+Constants:
+    Image.MAX_IMAGE_PIXELS: Allows loading of very large images without PIL warnings.
+    cfg_img_size: Image size configuration loaded from `configs/dataset/default.yaml`.
+
+Functions:
+    transform(size)
+    predict(model, file)
+    mask_to_contours(mask)
+    scale_contours(contours)
+    contours_to_geojson(contours)
+"""
+
+
 import torch
 from omegaconf import OmegaConf
 from PIL import Image   
@@ -12,9 +46,21 @@ import zipfile
 
 Image.MAX_IMAGE_PIXELS = None 
 
-cfg_img_size = OmegaConf.load("../configs/dataset/default.yaml")
+cfg_img_size = OmegaConf.load("configs/dataset/default.yaml")
 
 def transform(size):
+    """
+    Creates a PyTorch image transformation pipeline.
+
+    The pipeline resizes the image to the specified size and converts it to a tensor.
+
+    Args:
+        size (tuple): Desired image size (width, height).
+
+    Returns:
+        torchvision.transforms.Compose: Composed transformation.
+    """
+
     img_transform = transforms.Compose([
         transforms.Resize(tuple(size)),
         transforms.ToTensor()
@@ -23,6 +69,37 @@ def transform(size):
 
 
 async def predict(model, file):
+    """
+    Predicts a segmentation mask from a whole-slide image and generates corresponding 
+    contours in GeoJSON format, then returns both as a ZIP file.
+
+    This function performs the following steps:
+        1. Reads the uploaded slide image file.
+        2. Creates a temporary file to store the uploaded slide.
+        3. Loads the slide using OpenSlide and extracts a thumbnail.
+        4. Applies transformations to resize and convert the image to a tensor.
+        5. Performs model inference to generate a segmentation mask.
+        6. Converts the mask to a binary or multi-class mask as needed.
+        7. Saves the mask as a PNG file.
+        8. Extracts contours from the mask using OpenCV.
+        9. Scales contours to the original slide dimensions.
+        10. Converts contours to GeoJSON format.
+        11. Saves both the mask PNG and GeoJSON file to a temporary ZIP file.
+        12. Returns the ZIP file as a FastAPI `FileResponse`.
+
+    Args:
+        model (torch.nn.Module): The PyTorch model used for segmentation inference.
+        file (UploadFile): The uploaded slide file to process.
+
+    Returns:
+        fastapi.responses.FileResponse: A response containing a ZIP file with:
+            - `{original_filename}_mask.png`: The predicted segmentation mask.
+            - `{original_filename}_mask.geojson`: The corresponding contours in GeoJSON format.
+
+    Raises:
+        ValueError: If the generated mask does not have a valid 2D shape.
+    """
+
     content = await file.read()
     
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
@@ -76,11 +153,31 @@ async def predict(model, file):
 
 
     def mask_to_contours(mask):
+        """
+        Converts a binary mask to contours using OpenCV.
+
+        Args:
+            mask (np.ndarray): 2D mask array with values 0 or 255.
+
+        Returns:
+            list: List of contours detected in the mask.
+        """
+
         mask_bin = (mask > 127).astype("uint8")
         contours, _ = cv2.findContours(mask_bin, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         return contours
 
     def scale_contours(contours):
+        """
+        Scales contours from thumbnail dimensions to original slide dimensions.
+
+        Args:
+            contours (list): List of contours in thumbnail coordinates.
+
+        Returns:
+            list: List of scaled contours in original slide coordinates.
+        """
+
         slide_w, slide_h = slide.level_dimensions[0]
         thumb_w, thumb_h = cfg_img_size.img_size
         scale_x = slide_w / thumb_w
@@ -94,6 +191,16 @@ async def predict(model, file):
         return scaled_contours
 
     def contours_to_geojson(contours):
+        """
+        Converts contours into a GeoJSON FeatureCollection.
+
+        Args:
+            contours (list): List of scaled contours.
+
+        Returns:
+            dict: GeoJSON FeatureCollection representing the contours.
+        """
+        
         features = []
         for contour in contours:
             if len(contour) < 3:
