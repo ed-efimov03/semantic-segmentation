@@ -1,101 +1,110 @@
-# 🧪🔬🤖 Сегментация тканей на Whole Slide Images (WSI) и FastAPI сервис инференса
+# 🧪🔬🤖 Tissue Segmentation on Whole Slide Images (WSI) and FastAPI Inference Service
 
-## 📌 Описание проекта
-Цель проекта — обучение моделей сегментации областей, содержащих ткань, на Whole Slide Images (WSI), а также разработка FastAPI-сервиса для инференса обученной модели.  
-Реализован полный pipeline: от подготовки данных и обучения моделей до развёртывания сервиса в Docker и написания клиентского скрипта.
+## 📌 Project Description
+The goal of this project is to train segmentation models for detecting tissue regions in Whole Slide Images (WSI) and to develop a FastAPI-based inference service for the trained model.
+A complete pipeline is implemented: from data preparation and model training to service deployment in Docker and writing a client script.
 
-Замечание: пункты 2 и 3 не обязательны (их нужно делать, если вы хотите заново обучить модели)
+Note: Steps 2 and 3 are optional (only needed if you want to retrain the models).
 ---
 
-## 🏗️ Структура проекта
+## 🏗️ Project Structure
+```bash
 project_root/
-├── training/                # Код для подготовки и обучения
+├── training/                # Code for data preparation and training
 ├── service/                 # FastAPI + Dockerfile
-├── client.py                # Клиентский скрипт
-├── configs/                 # Конфиги
-├── README.md                # Инструкции по запуску
-└── requirements.txt         # Зависимости
+├── client.py                # Client script
+├── configs/                 # Configs
+├── README.md                # Setup instructions
+└── requirements.txt         # Dependencies
+```
 
 ---
 
-## ⚙️ Установка окружения
+## ⚙️ Environment Setup
 
-### 1. Установка зависимостей
-Рекомендуется использовать [UV](https://docs.astral.sh/uv/) или `conda`.  
-Пример уставновки `uv`:
+### 1. Installing dependencies
+It is recommended to use [UV](https://docs.astral.sh/uv/) or `conda`.  
+Example installation of `uv`:
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Пример использования `uv`:
+Example usage of `uv`:
 ```bash
 uv venv
 source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-Также рекомендуется уставновить программу QuPath для просмотра WSI и разметки
+It is also recommended to install QuPath for WSI viewing and annotation.
 
 
-### 2. Подготовка данных
-Скачайте данные (будут лежать в zip файле):
-- Основной датасет (WSI + GeoJSON) 
-- Тестовый датасет: [Histo-Seg](https://data.mendeley.com/datasets/vccj8mp2cg/1)
+### 2. Data Preparation
+Download the datasets (provided in a zip file):
+- Main dataset (WSI + GeoJSON)
+- Test dataset: [Histo-Seg](https://data.mendeley.com/datasets/vccj8mp2cg/1)
 
-Основной датасет:
-- Положить скачанные данные в training/data/raw
-- Извлечь файлы с помощью утилиты extract_zip.py
-- Перейти в ../preprocessed
-- Обработать данные с помощью утилиты data_preprocess.py
+Main dataset:
+- Transfer the downloaded files in `training/data/raw`
+- Extract files using the `extract_zip.py` utility
+- Go to `../preprocessed`
+- Process data using the `data_preprocess.py` utility
 
-Тестовый датасет:
-- Положить скачанные данные в training/data/test
-- Извлечь файлы с помощью утилиты extract_histo_test.py
-- Обработать данные с помощью утилиты preprocess.py
+Test dataset:
+- Transfer the downloaded files in `training/data/test`
+- Extract files using the `extract_histo_test.py` utility
+- Process data using the `preprocess.py` utility
 
-### 3.Обучение и тест
-- Перейти в training
-- Запустить утилиту train.py для обучения
+### 3.Training and Testing
+- Navigate to `training`
+- Run `train.py` to train the model
 
-Пример запуска обучения:
+Example training run:
 ```bash
 uv run train.py model="deeplabv3"
 ```
-- Запустить утилиту test.py для теста
 
-Пример запуска теста:
+- Run `test.py` to evaluate the model
+
+Example test run:
 ```bash
 uv run test.py model="deeplabv3"
 ```
 
 
-### 4. Запуск Fast_API сервиса
-Инструкция по запуску сервиса, если вы выполняли пункты 2 и 3:
-- Перейти в корневую папку проекта
-- Собртать образ docker 
+### 4. Running the FastAPI Service
+Instructions if you performed steps 2 and 3:
+- Navigate to the project root
+- Build the Docker image:
 ```bash
 docker build -f service/Dockerfile -t semantic-segmentation:latest .
 ```
-- Запустить docker контейнер
+- Run the Docker container:
 ```bash
 docker run -d --name semantic-segmentation -p <your port number>:5000 semantic-segmentation:latest
 ```
-- Add port <your port number>
+- Add port `your port number`
+- Use model
 
 
 
-Инструкция по запуску сервиса, если вы НЕ выполняли пункты 2 и 3:
-- Перейти в training
-- Создать папку models и перейти в неё
-- Загрузить обученную [unet](https://drive.google.com/file/d/1c_ZwHinynT-qnC12o1-leySzNcZp1Bxa/view?usp=drive_link) и [deeplabv3](https://drive.google.com/file/d/15Bn2ASY_UYJjsZeivyXJmVZvsX2Ch4Bp/view?usp=drive_link)
-Дальше также как и в другом варианте
-- Перейти в корневую папку проекта
-- Собртать образ docker 
+
+Instructions if you did NOT perform steps 2 and 3:
+- Go to `training`
+- Create a `models` folder and navigate into it
+- Download the pretrained models: 
+[unet](https://drive.google.com/file/d/1c_ZwHinynT-qnC12o1-leySzNcZp1Bxa/view?usp=drive_link), 
+[deeplabv3](https://drive.google.com/file/d/15Bn2ASY_UYJjsZeivyXJmVZvsX2Ch4Bp/view?usp=drive_link)
+
+Then follow the same steps as in the previous case:
+- Navigate to the project root
+- Build the Docker image:
 ```bash
 docker build -f service/Dockerfile -t semantic-segmentation:latest .
 ```
-- Запустить docker контейнер
+- Run the Docker container:
 ```bash
 docker run -d --name semantic-segmentation -p <your port number>:5000 semantic-segmentation:latest
 ```
-- Add port <your port number>
+- Add port `your port number`
+- Use model
