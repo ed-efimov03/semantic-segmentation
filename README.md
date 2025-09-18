@@ -83,7 +83,7 @@ docker build -f service/Dockerfile -t semantic-segmentation:latest .
 ```bash
 docker run -d --name semantic-segmentation -p <your port number>:5000 semantic-segmentation:latest
 ```
-- Add port `your port number`
+- Add `your port number` in PORTS
 - Use model
 
 
