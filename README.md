@@ -45,13 +45,13 @@ Download the datasets (provided in a zip file):
 - Test dataset: [Histo-Seg](https://data.mendeley.com/datasets/vccj8mp2cg/1)
 
 Main dataset:
-- Transfer the downloaded files in `training/data/raw`
+- Transfer the downloaded files to `training/data/raw`
 - Extract files using the `extract_zip.py` utility
 - Go to `../preprocessed`
 - Process data using the `data_preprocess.py` utility
 
 Test dataset:
-- Transfer the downloaded files in `training/data/test`
+- Transfer the downloaded files to `training/data/test`
 - Extract files using the `extract_histo_test.py` utility
 - Process data using the `preprocess.py` utility
 
@@ -95,6 +95,7 @@ Instructions if you did NOT perform steps 2 and 3:
 - Download the pretrained models: 
 [unet](https://drive.google.com/file/d/1c_ZwHinynT-qnC12o1-leySzNcZp1Bxa/view?usp=drive_link), 
 [deeplabv3](https://drive.google.com/file/d/15Bn2ASY_UYJjsZeivyXJmVZvsX2Ch4Bp/view?usp=drive_link)
+- Transfer the downloaded files to `training/models`
 
 Then follow the same steps as in the previous case:
 - Navigate to the project root
