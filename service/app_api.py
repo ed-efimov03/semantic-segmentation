@@ -35,7 +35,7 @@ from client import predict
 
 cfg = OmegaConf.load("configs/config.yaml")
 cfg_unet = OmegaConf.load("configs/model/unet.yaml")
-cfg_deeplab = OmegaConf.load("configs/model/deeplabv3.yaml")
+cfg_deeplab = OmegaConf.load("configs/model/deeplabv3+.yaml")
 
 def load_model(cfg):
     """
@@ -63,7 +63,7 @@ def load_model(cfg):
         )
         model_path = "training/models/unet_custom.pth"
 
-    elif model_name == "deeplabv3":
+    elif model_name == "deeplabv3+":
         model = smp.DeepLabV3Plus(
             encoder_name=cfg_deeplab.encoder,
             in_channels=3,
